@@ -1,0 +1,9 @@
+[submodule "pack/plugs/opt/nerdtree"]
+	path = pack/plugs/opt/nerdtree
+	url = git@github.com:preservim/nerdtree.git
+[submodule "pack/plugs/start/vim-airline"]
+	path = pack/plugs/start/vim-airline
+	url = https://github.com/vim-airline/vim-airline.git
+[submodule "pack/plugs/start/vim-airline-themes"]
+	path = pack/plugs/start/vim-airline-themes
+	url = git@github.com:vim-airline/vim-airline-themes.git

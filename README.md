@@ -1,2 +1,2 @@
 # vimrc
-vim configuration
+vim 配置文件及插件
