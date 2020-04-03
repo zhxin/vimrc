@@ -273,3 +273,6 @@ inoremap <F12> <Esc>:call ToggleMouse()<CR>a
     let g:airline_symbols.spell = 'Ꞩ'
     let g:airline_symbols.notexists = 'Ɇ'
     let g:airline_symbols.whitespace = 'Ξ'
+
+    nnoremap <leader>ev :vsplit $HOME/.vim/vimrc.vim<cr>
+    nnoremap <leader>sv :source $MYVIMRC<cr>
