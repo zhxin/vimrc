@@ -250,6 +250,7 @@ inoremap <F12> <Esc>:call ToggleMouse()<CR>a
     let g:airline#extensions#branch#enabled = 1
     let g:airline#extensions#tabline#enabled = 1
     let g:airline#extensions#tabline#buffer_nr_show = 1
+    let g:airline#extensions#wordcount#formatter#default#fmt_short = '%sW'
 
     if !exists('g:airline_symbols')
       let g:airline_symbols = {}
