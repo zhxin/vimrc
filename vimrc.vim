@@ -9,7 +9,7 @@ set backspace=indent,eol,start
 " Also switch on highlighting the last used search pattern.
 if &t_Co > 2 || has("gui_running")
   syntax on
-  set hlsearch
+  set hlsearch incsearch
 endif
 
 "默认关闭鼠标，方便Terminal下操作
@@ -22,6 +22,56 @@ if has("termguicolors")
     set termguicolors
 endif
 
+" With a map leader it's possible to do extra key combinations
+let mapleader=","
+" let maplocalleader="\\"
+
+" edit vimrc file quicklly
+nnoremap <leader>ev :vsplit $HOME/.vim/vimrc.vim<cr>
+nnoremap <leader>sv :source $MYVIMRC<cr>
+
+"使用 jk 代替 esc 键 
+inoremap jk <esc>
+
+" operation map
+
+" funciton GrepOperator {{{
+function! s:GrepOperator(type)
+    let saved_unnamed_register = @@
+    if a:type ==# 'v'
+        normal! `<v`>y
+    elseif a:type ==# 'char'
+        normal! `[v`]y
+    else
+        return
+    endif
+    
+    silent execute "grep! -R " . shellescape(@@) . " ."
+    copen
+
+    let @@ = saved_unnamed_register
+endfunction " }}}
+
+nnoremap <leader>g :set operatorfunc=<SID>GrepOperator<cr>g@
+vnoremap <leader>g :<c-u>call <SID>GrepOperator(visualmode())<cr>
+
+" function FoldColumnToggle {{{
+function! FoldColumnToggle()
+    if &foldcolumn
+        setlocal foldcolumn=0
+    else
+        setlocal foldcolumn=4
+    endif
+endfunction
+" end FoldColumnToggle }}}
+nnoremap <leader>f :call FoldColumnToggle()<cr>
+
+onoremap p i(
+onoremap in( :<c-u>normal! f(vi(<cr>
+onoremap il( :<c-u>normal! F(vi(<cr>
+
+nnoremap <leader>N :setlocal number!<cr>
+
 "代码缩进设置
 set smarttab      "开启时，在行首按TAB将加入sw个空格，否则加入ts个空格
 set tabstop=4     "编辑时一个TAB字符占多少个空格的位置
@@ -29,7 +79,7 @@ set softtabstop=4 "方便在开启了et后使用退格（backspace）键，每�
 set shiftwidth=4  "使用每层缩进的空格数
 set expandtab     "是否将输入的TAB自动展开成空格。开启后要输入TAB，需要Ctrl-V<TAB>
 
-" Only do this part when compiled with support for autocommands.
+" Only do this part when compiled with support for autocommands.------{{{
 if has("autocmd")
     " Enable file type detection.
     " Use the default filetype settings, so that mail gets 'tw' set to 72,
@@ -38,7 +88,7 @@ if has("autocmd")
     filetype plugin indent on
     " Put these in an autocmd group, so that we can delete them easily.
     augroup vimrcEx
-    au!
+    autocmd!
     " For all text files set 'textwidth' to 78 characters.
     autocmd FileType text setlocal textwidth=78
     autocmd FileType html setlocal shiftwidth=2 tabstop=2 softtabstop=2
@@ -47,6 +97,9 @@ if has("autocmd")
     autocmd FileType make setlocal noexpandtab
     autocmd FileType python setlocal expandtab smarttab shiftwidth=4 softtabstop=4
     autocmd FileType c,cpp setlocal shiftwidth=2 tabstop=8 smarttab
+    autocmd FileType c,cpp nnoremap <buffer> <localleader>c I//<esc>
+    autocmd FileType python nnoremap <buffer> <localleader>c #//<esc>
+    autocmd FileType vim setlocal foldmethod=marker
     " When editing a file, always jump to the last known cursor position.
     " Don't do it when the position is invalid or when inside an event handler
     " (happens when dropping a file on gvim).
@@ -57,7 +110,7 @@ if has("autocmd")
     augroup END
 else
     set autoindent		" always set autoindenting on
-endif " has("autocmd")
+endif " has("autocmd") ------}}}
 
 set history=1024
 set number                                       " 显示行号
@@ -100,21 +153,6 @@ set backupskip=/tmp/*,/private/tmp/*"
 au VimResized * :wincmd =
 
 
-" toggle between no number, absolute number and relative number
-function! ToggleNumber()
-    if !&number && !&relativenumber
-        set number
-    elseif !&relativenumber
-        set relativenumber
-    else
-        set nonumber
-        set norelativenumber
-    endif
-endfunc
-
-"使用F5切换行号模式
-noremap <F5> :call ToggleNumber()<CR>
-
 "使用F6开关list字符
 noremap <F6> :set invlist<CR>:set list?<CR>
 
@@ -126,99 +164,72 @@ endfunction
 
 noremap <F7> :call UpdateCtags()<CR>
 
-"鼠标模式切换
-fun! ToggleMouse()
-    if &mouse == ""
-        let &mouse = "a"
-        echo "Mouse is for Vim (" . &mouse . ")"
-    else
-        let &mouse = ""
-        echo "Mouse is for Vim (" . &mouse . ")"
-    endif
-endfunction
 
 "开关YankRing剪贴板缓冲区
 nnoremap <F10> :YRShow<CR>
 
-"使用F12切换鼠标模式
-noremap <F12> :call ToggleMouse()<CR>
-inoremap <F12> <Esc>:call ToggleMouse()<CR>a
-
-" With a map leader it's possible to do extra key combinations
-    let mapleader=","
-
 " Instead of reverting the cursor to the last position in the buffer, we
 " set it to the first line when editing a git commit message
-    au FileType gitcommit au! BufEnter COMMIT_EDITMSG call setpos('.', [0, 1, 1, 0])
+au FileType gitcommit au! BufEnter COMMIT_EDITMSG call setpos('.', [0, 1, 1, 0])
 
 "快速退出vim
-    nnoremap <C-c> :qall!<CR>
+nnoremap <C-c> :qall!<CR>
 
 "搜索相关的设置
-    set showmatch  " show matching brackets/parenthesis
-    set magic      " 根据vim说明默认开启此参数
-    set ignorecase " 忽略大小写
-    set smartcase  " case sensitive when uc present
+set showmatch  " show matching brackets/parenthesis
+set magic      " 根据vim说明默认开启此参数
+set ignorecase " 忽略大小写
+set smartcase  " case sensitive when uc present
 
-    "清空搜索结果高亮显示
-    nnoremap <leader>/ :nohlsearch<CR>
-
-"Window navigation mappings
-"deprecated after using vim-tmux-navigator
-    " noremap <C-h> <C-w>h
-    " noremap <C-j> <C-w>j
-    " noremap <C-k> <C-w>k
-    " noremap <C-l> <C-w>l
+"清空搜索结果高亮显示
+nnoremap <leader>/ :nohlsearch<CR>
 
 "Tab navigation mappings
-    map tn :tabn<CR>
-    map tp :tabp<CR>
-    map tm :tabm
-    map tt :tabnew<cr>
-    map ts :tab split<CR>
-    map <C-S-Right> :tabn<CR>
-    imap <C-S-Right> <ESC>:tabn<CR>
-    map <C-S-Left> :tabp<CR>
-    imap <C-S-Left> <ESC>:tabp<CR>
+map tn :tabn<CR>
+map tp :tabp<CR>
+map tm :tabm
+map tt :tabnew<cr>
+map ts :tab split<CR>
 
 "Code View Mode
-    fun! ToggleCodeViewMode()
-        if !exists("s:codeviewmode")
-            let s:codeviewmode = "0"
-        endif
+fun! ToggleCodeViewMode()
+    if !exists("s:codeviewmode")
+        let s:codeviewmode = "0"
+    endif
 
-        if s:codeviewmode == "0"
-            nmap j jzz
-            nmap k kzz
-            let s:codeviewmode = "1"
-            echo "Code View Mode"
-        else
-            unmap j
-            unmap k
-            let s:codeviewmode = "0"
-            echo "Code Edit Mode"
-        endif
-    endfunction
-    command! CodeReview :call ToggleCodeViewMode()
+    if s:codeviewmode == "0"
+        nmap j jzz
+        nmap k kzz
+        let s:codeviewmode = "1"
+        echo "Code View Mode"
+    else
+        unmap j
+        unmap k
+        let s:codeviewmode = "0"
+        echo "Code Edit Mode"
+    endif
+endfunction
+
+command! CodeReview :call ToggleCodeViewMode()
 
 " set text wrapping toggles
-    nmap <silent> <leader>tw :set invwrap<CR>:set wrap?<CR>
+nmap <silent> <leader>tw :set invwrap<CR>:set wrap?<CR>
 
 " find merge conflict markers
-    nmap <silent> <leader>c <ESC>/\v^[<=>]{7}( .*\|$)<CR>
+nmap <silent> <leader>c <ESC>/\v^[<=>]{7}( .*\|$)<CR>
 
 " 在命令行里面, 用%%表示当前文件路径
-    cnoremap %% <C-R>=fnameescape(expand('%:h')).'/'<cr>
+cnoremap %% <C-R>=fnameescape(expand('%:h')).'/'<cr>
 
 " 使用系统剪贴板复制粘帖(仅用于Mac)
-    map <leader>y "+y
-    map <leader>p "+p
+map <leader>y "+y
+map <leader>p "+p
 
 " command mode, ctrl-a to head， ctrl-e to tail
-	cnoremap <C-j> <t_kd>
-	cnoremap <C-k> <t_ku>
-	cnoremap <C-a> <Home>
-	cnoremap <C-e> <End>
+cnoremap <C-j> <t_kd>
+cnoremap <C-k> <t_ku>
+cnoremap <C-a> <Home>
+cnoremap <C-e> <End>
 
 "代码折叠相关配置
 "    set foldmethod=syntax       "代码折叠 共有6中方式如下
@@ -230,50 +241,52 @@ inoremap <F12> <Esc>:call ToggleMouse()<CR>a
         "6. marker 用标志折叠
 
 "设置菜单和帮助的语言，默认改为英语
-    set fileencodings=utf-8,gbk "使用utf-8或gbk打开文件
-    set encoding=utf8
-    set langmenu=en_US.UTF-8
-    language message en_US.UTF-8
-    let $LC_ALL='en_US.UTF-8'
-    let $LANG='en_US.UTF-8'
+set fileencodings=utf-8,gbk "使用utf-8或gbk打开文件
+set encoding=utf8
+set langmenu=en_us.utf-8
+language message en_US.UTF-8
+let $LC_ALL='en_US.UTF-8'
+let $LANG='en_US.UTF-8'
     
 "插件设置
-    packadd nerdtree
+
+" NERDTree ----------------------------
+packadd nerdtree
+
 
 " Airline ------------------------------
-    let g:airline_powerline_fonts = 1
-    let g:airline_detect_paste=1
-    let g:airline_theme = 'powerlineish'
-    let g:airline#extensions#whitespace#enabled = 0
-    let g:airline#extensions#whitespace#symbol = '!'
-    let g:airline#extensions#syntastic#enabled = 0
-    let g:airline#extensions#branch#enabled = 1
-    let g:airline#extensions#tabline#enabled = 1
-    let g:airline#extensions#tabline#buffer_nr_show = 1
-    let g:airline#extensions#wordcount#formatter#default#fmt_short = '%sW'
+let g:airline_powerline_fonts = 1
+let g:airline_detect_paste=1
+let g:airline_theme = 'powerlineish'
+let g:airline#extensions#whitespace#enabled = 0
+let g:airline#extensions#whitespace#symbol = '!'
+let g:airline#extensions#syntastic#enabled = 0
+let g:airline#extensions#branch#enabled = 1
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#buffer_nr_show = 1
+"let g:airline#extensions#wordcount#formatter#default#fmt_short = '%sW'
+let g:airline#extensions#wordcount#enabled = 0
+if !exists('g:airline_symbols')
+  let g:airline_symbols = {}
+endif
 
-    if !exists('g:airline_symbols')
-      let g:airline_symbols = {}
-    endif
-    " unicode symbols
-    let g:airline_left_sep = '»'
-    let g:airline_left_sep = '▶'
-    let g:airline_right_sep = '«'
-    let g:airline_right_sep = '◀'
-    let g:airline_symbols.crypt = '🔒'
-    let g:airline_symbols.linenr = '☰'
-    let g:airline_symbols.linenr = '␊'
-    let g:airline_symbols.linenr = '␤'
-    let g:airline_symbols.linenr = '¶'
-    let g:airline_symbols.maxlinenr = ''
-    let g:airline_symbols.maxlinenr = '㏑'
-    let g:airline_symbols.branch = '⎇'
-    let g:airline_symbols.paste = 'ρ'
-    let g:airline_symbols.paste = 'Þ'
-    let g:airline_symbols.paste = '∥'
-    let g:airline_symbols.spell = 'Ꞩ'
-    let g:airline_symbols.notexists = 'Ɇ'
-    let g:airline_symbols.whitespace = 'Ξ'
+" unicode symbols
+let g:airline_left_sep = '»'
+let g:airline_left_sep = '▶'
+let g:airline_right_sep = '«'
+let g:airline_right_sep = '◀'
+let g:airline_symbols.crypt = '🔒'
+let g:airline_symbols.linenr = '␊'
+let g:airline_symbols.linenr = '␤'
+let g:airline_symbols.linenr = '¶'
+let g:airline_symbols.linenr = '☰'
+let g:airline_symbols.maxlinenr = '㏑'
+let g:airline_symbols.maxlinenr = ''
+let g:airline_symbols.branch = '⎇'
+let g:airline_symbols.paste = 'ρ'
+let g:airline_symbols.paste = 'Þ'
+let g:airline_symbols.paste = '∥'
+let g:airline_symbols.spell = 'Ꞩ'
+let g:airline_symbols.notexists = 'Ɇ'
+let g:airline_symbols.whitespace = 'Ξ'
 
-    nnoremap <leader>ev :vsplit $HOME/.vim/vimrc.vim<cr>
-    nnoremap <leader>sv :source $MYVIMRC<cr>
