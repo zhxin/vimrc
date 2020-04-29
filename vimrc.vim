@@ -121,6 +121,7 @@ set modeline                                     " 允许被编辑的文件以�
 set hidden                                       " switching buffers without saving
 set ruler                                        " show the cursor position all the time
 set showcmd                                      " display incomplete commands
+set showmode
 set wildmenu                                     " show enhanced completion
 set wildmode=list:longest                        " together with wildmenu
 set wildignore+=.git,.svn                    " Version control
@@ -248,45 +249,16 @@ language message en_US.UTF-8
 let $LC_ALL='en_US.UTF-8'
 let $LANG='en_US.UTF-8'
     
-"插件设置
-
-" NERDTree ----------------------------
-packadd nerdtree
-
-
-" Airline ------------------------------
-let g:airline_powerline_fonts = 1
-let g:airline_detect_paste=1
-let g:airline_theme = 'powerlineish'
-let g:airline#extensions#whitespace#enabled = 0
-let g:airline#extensions#whitespace#symbol = '!'
-let g:airline#extensions#syntastic#enabled = 0
-let g:airline#extensions#branch#enabled = 1
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#tabline#buffer_nr_show = 1
-"let g:airline#extensions#wordcount#formatter#default#fmt_short = '%sW'
-let g:airline#extensions#wordcount#enabled = 0
-if !exists('g:airline_symbols')
-  let g:airline_symbols = {}
-endif
-
-" unicode symbols
-let g:airline_left_sep = '»'
-let g:airline_left_sep = '▶'
-let g:airline_right_sep = '«'
-let g:airline_right_sep = '◀'
-let g:airline_symbols.crypt = '🔒'
-let g:airline_symbols.linenr = '␊'
-let g:airline_symbols.linenr = '␤'
-let g:airline_symbols.linenr = '¶'
-let g:airline_symbols.linenr = '☰'
-let g:airline_symbols.maxlinenr = '㏑'
-let g:airline_symbols.maxlinenr = ''
-let g:airline_symbols.branch = '⎇'
-let g:airline_symbols.paste = 'ρ'
-let g:airline_symbols.paste = 'Þ'
-let g:airline_symbols.paste = '∥'
-let g:airline_symbols.spell = 'Ꞩ'
-let g:airline_symbols.notexists = 'Ɇ'
-let g:airline_symbols.whitespace = 'Ξ'
-
+set statusline=                              " clear the statusline for when vimrc is reloaded
+set statusline+=%-3.3n\                      " buffer number
+set statusline+=%F\                          " file name
+set statusline+=%#warningmsg#
+set statusline+=%m
+set statusline+=%*
+set statusline+=%h%r%w                     " flags
+set statusline+=[%{strlen(&ft)?&ft:'none'},  " filetype
+set statusline+=%{strlen(&fenc)?&fenc:&enc}, " encoding
+set statusline+=%{&fileformat}]              " file format
+set statusline+=%=                           " right align
+" set statusline+=%b,0x%-8B\                   " current char
+set statusline+=%-14.(%l,%c%V%)\ %<%P        " offset
