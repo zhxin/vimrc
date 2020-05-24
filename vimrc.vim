@@ -252,13 +252,13 @@ let $LANG='en_US.UTF-8'
 set statusline=                              " clear the statusline for when vimrc is reloaded
 set statusline+=%-3.3n\                      " buffer number
 set statusline+=%F\                          " file name
-set statusline+=%#warningmsg#
+set statusline+=%=                           " right align
+set statusline+=%#error#
 set statusline+=%m
 set statusline+=%*
-set statusline+=%h%r%w                     " flags
+set statusline+=%h%r%w                       " flags
 set statusline+=[%{strlen(&ft)?&ft:'none'},  " filetype
 set statusline+=%{strlen(&fenc)?&fenc:&enc}, " encoding
 set statusline+=%{&fileformat}]              " file format
-set statusline+=%=                           " right align
 " set statusline+=%b,0x%-8B\                   " current char
 set statusline+=%-14.(%l,%c%V%)\ %<%P        " offset
