@@ -1,0 +1,6 @@
+[submodule "pack/plugin/start/nerdtree"]
+	path = pack/plugin/start/nerdtree
+	url = https://github.com/preservim/nerdtree.git
+[submodule "pack/plugin/start/coc.nvim"]
+	path = pack/plugin/start/coc.nvim
+	url = https://github.com/neoclide/coc.nvim.git
